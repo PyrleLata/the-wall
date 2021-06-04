@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>The Wall</title>
+
+    <!-- <link rel='stylesheet' href="{% static 'css/styles.css' %}"> -->
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse" style="border: 3px solid black">
+      <div class="container-fluid">
+        <h1><a class="navbar-brand" href="/wall" style="color: black">CodingDojo WALL</a></h1>
+        <div class="navbar-header"> 
+            
+          <ul>Welcome, {{ user.first_name }}&emsp13; &emsp13;&emsp13; &emsp13; &emsp13; &emsp13;<a href="/logout">log off</a></ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <h3>Post a message</h3>
+      {% if messages %} {% for msg in messages %}
+      <h3>{{ msg }}</h3>
+      {% endfor %} {% endif %}
+      <form action="add-post" method="post">
+        {% csrf_token %}
+        <textarea name='post_text' id="" cols="100" rows="3"></textarea>
+        <button class="btn btn-primary">Post a message</button>
+
+      </form>
+      {% for post in all_posts %}
+      <h6 action=>{{ post.user.first_name }} {{ post.user.last_name }} - {{ post.created_at }}</h6>
+      <div class="container-fluid">
+        <p>{{ post.text }} </p>
+        
+        <span><a href="/add-like/{{ post.id }}">LIKE</a></span>
+        <span>{{ post.likes.count }}</span>
+        {% if request.session.user_id == post.user.id %}
+        <span><a href="/edit/{{ post.id }}">EDIT</a></span>
+        <span><a href="/delete-post/{{ post.id }}">DELETE</a></span>
+        {% endif %} 
+        {% for comment in post.comments.all %}
+        <div class="container-fluid">
+          <h6>{{ comment.user.first_name }} {{ comment.user.last_name }} - {{ post.created_at }}</h6>
+          <p>
+            {{comment.text}}
+          </p>
+          <!-- {% if request.session.user_id == comment.user.id %}
+          <span><a href="/delete-comment/{{ post.id }}">DELETE</a></span>
+          {% endif %} -->
+        </div>
+        {% endfor %}
+        <div class="container-fluid">
+          <h5>Post a comment</h5>
+          <form action="/add-comment" method="post">
+            {% csrf_token %}
+            <textarea name="comment_text" id="" cols="80" rows="2"></textarea>
+            <input type="hidden" name="post_id" value="{{ post.id }}" />
+            <button class="btn btn-success">Post a comment</button>
+          </form>
+      </div>
+        <hr />
+      </div>
+      {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
